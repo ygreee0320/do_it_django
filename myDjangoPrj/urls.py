@@ -14,8 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
-urlpatterns = [
-    path('admin/', admin.site.urls), # IP주소/admin이 온다면 url로 연결(admin.site.urls)
+urlpatterns = [ #IP주소/
+    path('admin/', admin.site.urls),  # IP주소/admin이 온다면 url로 연결(admin.site.urls)
+    path('blog/', include('blog.urls')) # IP주소/blog이 온다면 blog url로 연결
 ]
