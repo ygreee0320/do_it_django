@@ -80,7 +80,12 @@
         {% for p in post_list %}
         <!-- Featured blog post-->
         <div class="card mb-4">
+          {% if p.head_image %} <!--p.head이미지가 있다면 출력 -->
           <img class="card-img-top" src="{{p.head_image.url}}" alt="{{p}}의 head_image" />
+          {% else %}
+          <img class="card-img-top" src="https://picsum.photos/seed/{{p.pk}}/800/200" alt="random image" />
+          <!-- 시드값으로 해당 프라이머리 키를 넣으면 랜덤이 아닌 고정 -->
+          {% endif %}
           <div class="card-body">
               <h2 class="card-title">{{p.title}}</h2>
               <p class="card-text">{{p.content}}</p>
