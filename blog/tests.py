@@ -1,3 +1,52 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from bs4 import BeautifulSoup
+from .models import Post
 
 # Create your tests here.
+class TestView(TestCase): #클래스 이름: Test로 시작
+
+    def setUp(self):
+        self.client = Client()
+    def test_post_list(self):
+        response = self.client.get('/blog/')
+        # response 결과가 정상적인지
+        self.assertEqual(response.status_code, 200)
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # title이 정상적으로 보이는지
+        self.assertEqual(soup.title.text, 'Blog')
+
+        # navbar가 정상적으로 보이는지
+        navbar = soup.nav
+        self.assertIn('Blog', navbar.text)
+        self.assertIn('About Me', navbar.text)
+
+        # Post가 정상적으로 보이는지
+        # 1.맨처음엔 포스트가 하나도 안보임
+        self.assertEqual(Post.objects.count(), 0)
+        main_area = soup.find('div', id="main-area")
+        self.assertIn('아무 게시물이 없습니다.', main_area.text)
+
+        # 2. Post가 있는 경우
+        post_001 = Post.objects.create(title="첫번째 포스트",content="첫번째 포스트입니다")
+        post_002 = Post.objects.create(title="두번째 포스트", content="두번째 포스트입니다")
+        self.assertEqual(Post.objects.count(), 2)
+
+        response = self.client.get('/blog/')
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        main_area = soup.find('div', id="main-area")
+        self.assertIn(post_001.title, main_area.text)
+        self.assertIn(post_002.title, main_area.text)
+        self.assertNotIn('아무 게시물이 없습니다.', main_area.text)
+
+    def test_post_detail(self):
+        post_001 = Post.objects.create(title="첫번째 포스트", content="첫번째 포스트입니다")
+        self.assertEqual(post_001.get_absolute_url(), '/blog/1/')
+
+        response = self.client.get(post_001.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        navbar = soup.nav
+        self.assertIn('Blog', navbar.text)
+        self.assertIn('About Me', navbar.text)

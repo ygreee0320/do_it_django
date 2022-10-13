@@ -75,10 +75,11 @@
   </div>
   <div class="container">
     <div class="row">
-      <div class="col-md-8 col-lg-9">
+      <div class="col-md-8 col-lg-9" id="main-area">
         <h2>Blog</h2>
-        {% for p in post_list %}
         <!-- Featured blog post-->
+        {% if post_list.exists %}
+        {% for p in post_list %}
         <div class="card mb-4">
           {% if p.head_image %} <!--p.head이미지가 있다면 출력 -->
           <img class="card-img-top" src="{{p.head_image.url}}" alt="{{p}}의 head_image" />
@@ -100,6 +101,9 @@
           </div>
         </div>
         {% endfor %} <!--데이터리스트에 3개 저장되어있어서 3번 반복-->
+        {% else %}
+          <h5>아무 게시물이 없습니다.</h5>
+        {% endif %}
 
         <!-- Pagination-->
         <nav aria-label="Pagination">
