@@ -22,7 +22,7 @@
           </div>
           <div class="card-footer">
               <div class="small text-muted">{{p.created_at | date:"Y-m-d h:m:s"}}</div>
-              <a href="#">작성자(추후 개발 예정)</a>
+              <a href="#">{{p.author | upper}}</a>
           </div>
         </div>
         {% endfor %} <!--데이터리스트에 3개 저장되어있어서 3번 반복-->
