@@ -3,6 +3,16 @@ from django.contrib.auth.models import User
 import os
 
 # Create your models here.
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=200, unique=True, allow_unicode=True)
+
+    def __str__(self):   #관리자페이지(admin)의 Tags목록에 이름을 보이게 하기
+        return self.name
+
+    def get_absolute_url(self): # IP주소/blog/tag/슬러그명/
+        return f'/blog/tag/{self.slug}/'
+
 class Category(models.Model):  # 카테고리 모델
     name = models.CharField(max_length=50, unique=True) # name 필드 : 각 카테고리의 이름, 동일한  name 불가
     slug = models.SlugField(max_length=200, unique=True, allow_unicode=True)
@@ -36,6 +46,7 @@ class Post(models.Model):
 
     #Category 모델을 사용하여 category 작성
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
+    tags = models.ManyToManyField(Tag, blank=True)  # 다대다관계, null=True 필요X(자동으로 비움)
 
     def __str__(self):  #관리자페이지(admin)의 포스트 목록에 제목을 보이게 하기
         return f'[{self.pk}]{self.title}:: {self.author} : {self.created_at}'

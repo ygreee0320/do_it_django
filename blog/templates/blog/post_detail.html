@@ -31,14 +31,24 @@
                         <!-- Preview image figure-->
                         <figure class="mb-4">
                             {% if post.head_image %} <!--이미지가 있다면 출력 -->
-                            <img class="img-fluid rounded" src="{{post.head_image.url}}" alt="{{p.title}}의 head_image" /></figure>
+                            <img class="img-fluid rounded" src="{{post.head_image.url}}" alt="{{p.title}}의 head_image" />
                             {% else %}
                             <img class="img-fluid rounded" src="https://picsum.photos/seed/{{post.pk}}/800/200" alt="random image" />
                             <!-- 시드값으로 해당 프라이머리 키를 넣으면 랜덤이 아닌 고정 -->
                             {% endif %}
+                        </figure>
                         <!-- Post content-->
                         <section class="mb-5">
                             <p class="fs-5 mb-4">{{post.content}}</p>
+                            {% if post.tags.exists %}   <!--exists함수 사용해야 있는지 확인 가능 -->
+                                <i class="fas fa-tag"></i>  <!-- 태그 아이콘 사용-->
+                                {% for t in post.tags.iterator %} <!-- iterator 있어야 for문으로 돌리기 가능 -->
+                                    <span class="badge badge-pill badge-light"> <!--뱃지 형태로 출력-->
+                                        <a href="{{t.get_absolute_url}}">{{t}}</a>
+                                    </span>
+                                {% endfor %}
+                                <br><br>
+                            {% endif %}
                             {% if post.file_upload %}
                             <a href="{{post.file_upload.url}}" class="btn btn-outline-dark" role="button" download>
                                 {% if post.get_file_ext == 'xlsx' or post.get_file_ext == 'xls' %}

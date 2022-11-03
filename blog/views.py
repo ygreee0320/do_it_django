@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Post, Category
+from .models import Post, Category, Tag
 from django.views.generic import ListView, DetailView
 
 # Create your views here.
@@ -39,6 +39,16 @@ class PostDetail(DetailView):
         context['categories'] = Category.objects.all()  #모든 카테고리를 가져와 'categories'키에 연결해 담기
         context['no_category_post_count'] = Post.objects.filter(category=None).count #카테고리가 지정되지 않은 개수
         return context
+
+def tag_page(request, slug):
+    tag = Tag.objects.get(slug=slug) #슬러그와 같은 슬러그의 태그를 가져옴
+    post_list = tag.post_set.all()  #같은 태그의 모든 포스트를 포스트리스트에 넣기
+    return render(request, 'blog/post_list.html', {
+        'tag' : tag,  #위의 변수에 저장된 값 전달해서 넘겨주기
+        'post_list' : post_list,
+        'categories': Category.objects.all(),
+        'no_category_post_count': Post.objects.filter(category=None).count
+    })
 
     # 템플릿 모델명_detail.html : post_detail.html
     # 파라미터(자동으로 전달되는 데이터) -> 모델명 : post
