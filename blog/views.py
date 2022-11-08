@@ -1,8 +1,33 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Post, Category, Tag
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin   #author자동으로 넣기(+redirect)
 
 # Create your views here.
+class PostCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):  #사용자 입력
+    model = Post
+    fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']
+
+    def test_func(self):  #이미 등록된, 상속받은 함수
+        return self.request.user.is_superuser or self.request.user.is_staff
+
+    def form_valid(self, form):  #클래스 내의 함수-> 이벤트 발생 시 자동 실행
+        current_user = self.request.user
+        if current_user.is_authenticated and (current_user.is_superuser or current_user.is_staff):
+            # 가입,인증 되었고 슈퍼유저or 스텝유저 라면 현재 로그인된 유저로 자동 author
+            form.instance.author = current_user
+            return super(PostCreate, self).form_valid(form)
+        else:
+            return redirect('/blog/') #올바른 유저가 아니라면 그냥 블로그 부름
+
+    # 템플릿 : 모델명_form.html
+    def get_context_data(self, *, object_list=None, **kwargs):  #카테고리 카드를 채우기 위한 정보 정의
+        context = super(PostCreate,self).get_context_data()  # 기존에 제공했던 기능을 그대로 가져와 context에 저장
+        context['categories'] = Category.objects.all()  # 모든 카테고리를 가져와 'categories'라는 키에 연결해 담기
+        context['no_category_post_count'] = Post.objects.filter(category=None).count
+        #카테고리가 지정되지 않은 포스트의 개수를 세어, 'no_category_post_count'에 담기
+        return context
+
 class PostList(ListView):  #클래스이름:모델명+리스트
     model = Post
     ordering = '-pk'

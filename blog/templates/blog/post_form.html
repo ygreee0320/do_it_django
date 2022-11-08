@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+
+{% block head_title %}
+    Create Post - Blog
+{% endblock %}
+
+{% block main_area %}
+  <h1>Create New Post</h1>
+  <hr>
+  <form method="post" enctype="multipart/form-data">  <!-- 사용자가 입력한 내용을 전달할 방식: get/post-->
+    {% csrf_token %}
+    <table>
+      {{form}} <!--views의 field를 따라 자동 생성(필드명만 만들면 장고가 자동으로) -->
+    </table>
+    <button type="submit" class="btn btn-primary float-right">Submit</button>  <!--제출 버튼 추가 -->
+  </form>
+{% endblock %}
