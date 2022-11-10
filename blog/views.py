@@ -1,9 +1,28 @@
 from django.shortcuts import render, redirect
 from .models import Post, Category, Tag
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin   #author자동으로 넣기(+redirect)
-
+from django.core.exceptions import PermissionDenied
 # Create your views here.
+class PostUpdate(LoginRequiredMixin,UpdateView):
+    model = Post
+    fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category', 'tags']
+
+    template_name = 'blog/post_update_form.html' #원래 제공하는 템플릿을 PostCreate가 사용해서 다른 템플릿 지정
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user == self.get_object().author:
+            return super(PostUpdate,self).dispatch(request, *args, **kwargs)
+        # 가입, 인증되었고 그 포스트의 작성자를 가져와서 현재 작성자와 같은지 확인
+        else:
+            raise PermissionDenied
+    def get_context_data(self, *, object_list=None, **kwargs):  #카테고리 카드를 채우기 위한 정보 정의
+        context = super(PostUpdate,self).get_context_data()  # 기존에 제공했던 기능을 그대로 가져와 context에 저장
+        context['categories'] = Category.objects.all()  # 모든 카테고리를 가져와 'categories'라는 키에 연결해 담기
+        context['no_category_post_count'] = Post.objects.filter(category=None).count
+        #카테고리가 지정되지 않은 포스트의 개수를 세어, 'no_category_post_count'에 담기
+        return context
+
 class PostCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):  #사용자 입력
     model = Post
     fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']
