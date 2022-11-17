@@ -24,8 +24,8 @@ class PostUpdate(LoginRequiredMixin,UpdateView):
         self.object.tags.clear()
         tags_str = self.request.POST.get('tags_str')
         if tags_str:  # 태그에 뭔가 있다면(NULL)이 아니라면
-            tags_str = tags_str.strip( )  # 문자열 앞뒤 빈칸 없앰
-            tags_str = tags_str.replace(',', ';')  # ,를 ;로 변경하고
+            tags_str = tags_str.strip()  # 문자열 앞뒤 빈칸 없앰
+            tags_str = tags_str.replace(',',';')  # ,를 ;로 변경하고
             tags_list = tags_str.split(';')  # ; 단위로 쪼갬
             for t in tags_list:
                 t = t.strip()
@@ -62,9 +62,9 @@ class PostCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):  #사용자
             form.instance.author = current_user
             response = super(PostCreate, self).form_valid(form)
             tags_str = self.request.POST.get('tags_str') #사용자가 작성한 정보 전달 방식(get,post)중 post (모델명이 아님)
-            if tags_str :  #태그에 뭔가 있다면(NULL)이 아니라면
+            if tags_str:  #태그에 뭔가 있다면(NULL)이 아니라면
                 tags_str = tags_str.strip() #문자열 앞뒤 빈칸 없앰
-                tags_str = tags_str.replace(',',';')  # ,를 ;로 변경하고
+                tags_str = tags_str.replace(',', ';')  # ,를 ;로 변경하고
                 tags_list = tags_str.split(';')  # ; 단위로 쪼갬
                 for t in tags_list:
                     t = t.strip()
