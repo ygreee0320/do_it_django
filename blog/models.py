@@ -62,3 +62,16 @@ class Post(models.Model):
         return self.get_file_name().split('.')[-1]
         # ~.txt ~~.docx 등을 가져옴 ->스플릿에 의해서 ~ txt / ~~ docx 두개로 쪼개서 배열스트링에 전달
         # a.b.c.txt -> a b c txt 로 쪼개지면 -> 배열에서 제일 마지막이 확장자임 (제일 마지막 원소 표시 : -1)
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE) # 포스트 지워지면 댓글도 같이 지워지도록
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.author} : {self.content}'
+
+    def get_absolute_url(self):
+        return f'{self.post.get_absolute_url()}#comment-{self.pk}'

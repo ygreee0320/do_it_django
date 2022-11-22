@@ -1,15 +1,19 @@
 from django.shortcuts import render, redirect
-from .models import Post, Category, Tag
+
+from .forms import CommentForm
+from .models import Post, Category, Tag, Comment
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin   #author자동으로 넣기(+redirect)
 from django.core.exceptions import PermissionDenied
 from django.utils.text import slugify
+from .forms import CommentForm
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 class PostUpdate(LoginRequiredMixin,UpdateView):
     model = Post
     fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category'] # , 'tags' 지움
-
+    # 템플릿명: post_forms 자동 생성-> 겹치니까 다른 이름으로
     template_name = 'blog/post_update_form.html' #원래 제공하는 템플릿을 PostCreate가 사용해서 다른 템플릿 지정
 
     def dispatch(self, request, *args, **kwargs):
@@ -51,7 +55,7 @@ class PostUpdate(LoginRequiredMixin,UpdateView):
 class PostCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):  #사용자 입력
     model = Post
     fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']  # , 'tags' 지움
-
+    # 템플릿명: post_forms 자동 생성
     def test_func(self):  #이미 등록된, 상속받은 함수
         return self.request.user.is_superuser or self.request.user.is_staff
 
@@ -120,6 +124,7 @@ class PostDetail(DetailView):
         context = super(PostDetail, self).get_context_data() # 기존에 제공했던 기능을 그대로 가져와 context에 저장
         context['categories'] = Category.objects.all()  #모든 카테고리를 가져와 'categories'키에 연결해 담기
         context['no_category_post_count'] = Post.objects.filter(category=None).count #카테고리가 지정되지 않은 개수
+        context['comment_form'] = CommentForm
         return context
 
 def tag_page(request, slug):
@@ -134,6 +139,35 @@ def tag_page(request, slug):
 
     # 템플릿 모델명_detail.html : post_detail.html
     # 파라미터(자동으로 전달되는 데이터) -> 모델명 : post
+
+def new_comment(request,pk):
+    if request.user.is_authenticated:
+        post = get_object_or_404(Post, pk=pk)
+        if request.method == 'POST':
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.post = post
+                comment.author = request.user
+                comment.save()  # 서버에 코멘트 세이브
+                return redirect(comment.get_absolute_url())
+        else:  # GET
+            return redirect(post.get_absolute_url())
+    else:
+        raise PermissionDenied
+
+class CommentUpdate(UpdateView):
+    model = Comment
+    form_class = CommentForm
+    # CreateView, UpdateView, form을 사용하면
+    # 템플릿: 모델명_forms 로 자동 생성  (comment_form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user == self.get_object().author:
+            return super(CommentUpdate,self).dispatch(request, *args, **kwargs)
+        # 가입, 인증되었고 그 포스트의 작성자를 가져와서 현재 작성자와 같은지 확인
+        else:
+            raise PermissionDenied
 
 #def index(request):
 #    posts1 = Post.objects.all().order_by('-pk') # 역순 출력

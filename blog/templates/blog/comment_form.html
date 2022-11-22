@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}
+    Edit Comment - Blog
+{% endblock %}
+
+{% block main_area %}
+  <h1>Edit Comment</h1>
+  <hr>
+  <form method="post" enctype="multipart/form-data">  <!-- 사용자가 입력한 내용을 전달할 방식: get/post-->
+    {% csrf_token %}
+
+      {{form | crispy}} <!--views의 field를 따라 자동 생성(필드명만 만들면 장고가 자동으로) -->
+
+    <button type="submit" class="btn btn-primary float-right">Submit</button>  <!--제출 버튼 추가 -->
+  </form>
+{% endblock %}
