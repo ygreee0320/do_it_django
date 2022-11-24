@@ -10,6 +10,9 @@
             {% endif %}
         {% endif %}
         <h2>Blog
+            {% if search_info %}
+                <span class="badge badge-secondary">{{ search_info }}</span>
+            {% endif %}
             {% if category %} <!-- 만약 카테고리가 있다면 뱃지를 이용하여 카테고리명 출력-->
                 - <span class="badge badge-secondary">{{ category }}</span>
             {% endif %}

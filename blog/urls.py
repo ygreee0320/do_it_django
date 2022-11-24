@@ -10,6 +10,7 @@ urlpatterns = [   # IP주소/blog/
     path('update_post/<int:pk>/', views.PostUpdate.as_view()),
     path('category/<str:slug>/', views.category_page), # IP주소/blog/category/슬러그명/ 입력시 : views.py의 category_page()함수로
     path('tag/<str:slug>/', views.tag_page),   # IP주소/blog/tag/슬러그명/ 입력시 : views.py의 tag_page()함수 호출
+    path('search/<str:q>/', views.PostSearch.as_view()),
 
     #path('', views.index),  # IP주소/blog
     #path('<int:pk>/', views.single_post_page)

@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.text import slugify
 from .forms import CommentForm
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 # Create your views here.
 class PostUpdate(LoginRequiredMixin,UpdateView):
@@ -117,6 +118,21 @@ def category_page(request, slug):  #매개변수로 꼭필요한 request 이외�
 
     # 템플릿 필요, 이름: 모델명_list.html : post_list.html <-자동생성
     # 파라미터(자동으로 전달되는 데이터) -> 모델명_list : post_list
+
+class PostSearch(PostList):  # 포스트리스트가 상속 받고있는 ListView도 상속, post_list, post_list.html 자동 호출
+    paginate_by = None
+
+    def get_queryset(self):
+        q = self.kwargs['q']
+        post_list = Post.objects.filter( #필터를 통해 걸러내고 저장
+            Q(title__contains=q) | Q(tags__name__contains=q)
+        ).distinct()  # 같은 포스트가 여러개 검색되어도 하나만 출력
+        return post_list
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(PostSearch, self).get_context_data()
+        q = self.kwargs['q']
+        context['search_info'] = f'Search : {q} ({self.get_queryset().count()})'
+        return context
 
 class PostDetail(DetailView):
     model = Post
