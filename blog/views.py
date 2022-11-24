@@ -91,7 +91,8 @@ class PostCreate(LoginRequiredMixin,UserPassesTestMixin,CreateView):  #사용자
 
 class PostList(ListView):  #클래스이름:모델명+리스트
     model = Post
-    ordering = '-pk'
+    ordering = '-pk'  # 포스트 최신순
+    paginate_by = 5   # 한 페이지에 5개 포스트 보여주기
 
     def get_context_data(self, *, object_list=None, **kwargs):  #카테고리 카드를 채우기 위한 정보 정의
         context = super(PostList,self).get_context_data()  # 기존에 제공했던 기능을 그대로 가져와 context에 저장
