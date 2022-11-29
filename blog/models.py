@@ -63,6 +63,12 @@ class Post(models.Model):
         # ~.txt ~~.docx 등을 가져옴 ->스플릿에 의해서 ~ txt / ~~ docx 두개로 쪼개서 배열스트링에 전달
         # a.b.c.txt -> a b c txt 로 쪼개지면 -> 배열에서 제일 마지막이 확장자임 (제일 마지막 원소 표시 : -1)
 
+    def get_avatar_url(self):
+        if self.author.socialaccount_set.exists():
+            return self.author.socialaccount_set.first().get_avatar_url()
+        else:
+            return 'https://dummyimage.com/50x50/ced4da/6c757d.jpg'
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE) # 포스트 지워지면 댓글도 같이 지워지도록
     author = models.ForeignKey(User, on_delete=models.CASCADE)
